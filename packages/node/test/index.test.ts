@@ -271,13 +271,14 @@ describe('SentryNode', () => {
 });
 
 describe('SentryNode initialization', () => {
-  test('global.SENTRY_RELEASE is used to set release on initialization if available', () => {
+  test('global.SENTRY_RELEASE is used to set release on initialization if available', async () => {
     global.SENTRY_RELEASE = { id: 'foobar' };
     init({ dsn });
     expect(global.__SENTRY__.hub._stack[0].client.getOptions().release).toEqual('foobar');
-    delete global.SENTRY_RELEASE;
+    // Unsure if this is needed under jest.
+    global.SENTRY_RELEASE = undefined;
     // Closing is required here so that all open handles are closed in the test
-    void getCurrentHub()
+    await getCurrentHub()
       .getClient()
       ?.close();
   });
