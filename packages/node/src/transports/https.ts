@@ -1,4 +1,5 @@
-import { Event, Response, TransportOptions } from '@sentry/types';
+import { eventToSentryRequest, sessionToSentryRequest } from '@sentry/core';
+import { Event, Response, Session, TransportOptions } from '@sentry/types';
 import { SentryError } from '@sentry/utils';
 import * as https from 'https';
 
@@ -23,6 +24,16 @@ export class HTTPSTransport extends BaseTransport {
     if (!this.module) {
       throw new SentryError('No module available in HTTPSTransport');
     }
-    return this._sendWithModule(this.module, event);
+    return this._sendWithModule(this.module, eventToSentryRequest(event, this._api), event);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public sendSession(session: Session): PromiseLike<Response> {
+    if (!this.module) {
+      throw new SentryError('No module available in HTTPTransport');
+    }
+    return this._sendWithModule(this.module, sessionToSentryRequest(session, this._api), session);
   }
 }
